@@ -17,7 +17,7 @@ Please note, **Julia version 1.4 or newer is required**, this will not work for 
    import Pkg
    Pkg.Registry.add("General") # you may skip this line if this is not a fresh instalation of Julia and you've updated/added a packge before
    Pkg.Registry.add(Pkg.RegistrySpec(url = "https://github.com/yakir12/DackeLab")) # you need to do this only once for each instalation of Julia
-   Pkg.add(Pkg.PackageSpec(url = "https://github.com/yakir12/CoffeeBeetles.jl")) # you need to do this only once for each environment
+   Pkg.add(Pkg.PackageSpec(url = "https://github.com/yakir12/AntsArticle.jl")) # you need to do this only once for each environment
    ```
    and paste it in the newly opened Julia-terminal, press Enter
 3. You can close the Julia-terminal after it's done running
@@ -26,7 +26,8 @@ Please note, **Julia version 1.4 or newer is required**, this will not work for 
 1. Start Julia -> a Julia-terminal popped up
 2. Copy: 
    ```julia
-   using CoffeeBeetles
+   using AntsArticle
+   savedata(path) # where `path` is the path to the directory that contains all the folders of all the experiments
    main()
    ```
    and paste it in the newly opened Julia-terminal, press Enter
@@ -36,7 +37,7 @@ Please note, **Julia version 1.4 or newer is required**, this will not work for 
 ## Troubleshooting
 When adding this package I got a
 ```
-Warning: julia version requirement for package CoffeeBeetles not satisfied
+Warning: julia version requirement for package AntsArticle not satisfied
 ```
 You'll need to update your Julia to 1.4 or higher. 
 

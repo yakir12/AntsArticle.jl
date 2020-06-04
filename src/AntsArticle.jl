@@ -1,8 +1,10 @@
 module AntsArticle
 
-export main
+export main, savedata
 
 using Serialization, DungBase
+
+using Format2DB, Glob, DungAnalyse
 
 using DataStructures, CoordinateTransformations, Rotations, DataFrames, Missings, Distributions, AngleBetweenVectors, LinearAlgebra, StatsBase, OnlineStats, Colors, PrettyTables, Measurements, HypothesisTests, GLM, DelimitedFiles, Printf
 
@@ -10,7 +12,6 @@ using CairoMakie, MakieLayout, FileIO, AbstractPlotting
 import AbstractPlotting:px
 CairoMakie.activate!()
 
-include("generate_artifacts.jl")
 include("preparedata.jl")
 include("stats.jl")
 include("plot.jl")
@@ -20,12 +21,34 @@ include("plot.jl")
 Create all the tables and figures included in the manuscript.
 """
 function main()
-    data = deserialize(datafile)
+    data = deserialize("data")
     df = getdf(data)
     speeds!(df)
     descriptive_stats(df)
     displaced_stats(df) 
     save_figures(df)
+end
+
+"""
+    savedata(path)
+Convert the raw data to the standard dataset and save it.
+The variable `path` is the path to the directory that
+contains all the folders of all the experiments.
+"""
+function savedata(path)
+    foreach(readdir(glob"source_*", tempdir())) do d
+        rm(d, force = true, recursive = true)
+    end
+    todo = readdir(path, join = true)
+    goodpath(x) = isdir(x) && !startswith(x, '.') && !isempty(readdir(x))
+    filter!(goodpath, todo)
+    sources = Format2DB.main.(todo)
+    source = DungAnalyse.joinsources(sources)
+    foreach(sources) do d
+        rm(d, force = true, recursive = true)
+    end
+    data = DungAnalyse.main(source)
+    serialize("data", data)
 end
 
 end
