@@ -1,7 +1,7 @@
 name = "AntsArticle"
 uuid = "831d1a84-7105-4a3f-a5d9-6d9a2a8d237d"
 authors = ["yakir12 <12.yakir@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 AbstractPlotting = "537997a7-5e4e-5d89-9595-2241ea00577e"

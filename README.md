@@ -9,7 +9,6 @@
 
 ## How to install
 If you haven't already, install [Julia](https://julialang.org/downloads/) -> you should be able to launch it (some icon on the Desktop or some such). 
-Please note, **Julia version 1.4 or newer is required**, this will not work for older versions.
 
 1. Start Julia -> a Julia-terminal popped up
 2. Copy: 
@@ -21,6 +20,10 @@ Please note, **Julia version 1.4 or newer is required**, this will not work for 
    ```
    and paste it in the newly opened Julia-terminal, press Enter
 3. You can close the Julia-terminal after it's done running
+
+### Requirements
+1. Please note, **Julia version 1.4 or newer is required**, this will not work for older versions.
+2. The calibration currently requires Matlab™ with the Computer Vision Toolbox installed. 
 
 ## How to use
 1. Start Julia -> a Julia-terminal popped up
