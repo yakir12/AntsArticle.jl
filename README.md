@@ -16,7 +16,7 @@ If you haven't already, install [Julia](https://julialang.org/downloads/) -> you
    import Pkg
    Pkg.Registry.add("General") # you may skip this line if this is not a fresh instalation of Julia and you've updated/added a packge before
    Pkg.Registry.add(Pkg.RegistrySpec(url = "https://github.com/yakir12/DackeLab")) # you need to do this only once for each instalation of Julia
-   Pkg.add(Pkg.PackageSpec(url = "https://github.com/yakir12/AntsArticle.jl")) # you need to do this only once for each environment
+   Pkg.add("AntsArticle.jl") # you need to do this only once for each environment
    ```
    and paste it in the newly opened Julia-terminal, press Enter
 3. You can close the Julia-terminal after it's done running
