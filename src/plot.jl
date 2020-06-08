@@ -3,7 +3,7 @@
 max_width = 493.228346
 
 set_theme!(
-    font = "Helvetica", # 
+#    font = "Helvetica", # 
     fontsize = 10,
     resolution = (max_width, 500.0),
     linewidth = 0.3,
