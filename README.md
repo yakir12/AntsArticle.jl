@@ -22,7 +22,7 @@ If you haven't already, install [Julia](https://julialang.org/downloads/) -> you
 3. You can close the Julia-terminal after it's done running
 
 ### Requirements
-1. Please note, **Julia version 1.4 or newer is required**, this will not work for older versions.
+1. Please note, **Julia version 1.5 or newer is required**, this will not work for older versions.
 2. The calibration currently requires Matlab™ with the Computer Vision Toolbox installed. 
 
 ## How to use

@@ -24,8 +24,6 @@ function parsetitle(title, r)
 end
 
 function getdf(data)
-    data["nest#closed person#therese displace_direction#none displace_location#feeder"] = data["nest#closed person#therese"]
-    delete!(data, "nest#closed person#therese")
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
     @. df[!, :displace_direction] = switchdirections.(df.displace_direction)
@@ -33,14 +31,12 @@ function getdf(data)
     @. df[!, :set] = getset(df.transfer, df.group)
 
     categorical!(df, [:group, :set, :displace_direction, :displace_location, :nest_coverage, :transfer])
-    levels!(df.group, ["none", "left", "right", "away", "towards", "zero", "back", "far"])
+    # levels!(df.group, ["none", "left", "right", "away", "towards", "zero", "back", "far"])
 
-    filter!(r -> r.group ≠ "far" || r.title == "transfer#far person#therese", df)
-
-    df[!, :direction_deviation]  = [angle(r.fictive_nest - r.feeder, turningpoint(r.track) - r.feeder) for r in eachrow(df)]
-    max_direction_deviation = maximum(r.direction_deviation for r in eachrow(df) if r.group ∉ ("far", "zero"))
-    mean_direction_deviation = mean(r.direction_deviation for r in eachrow(df) if r.group ∉ ("far", "zero"))
-    filter!(r -> r.group ≠ "far" || r.direction_deviation < 4mean_direction_deviation, df)
+    # df[!, :direction_deviation]  = [angle(r.fictive_nest - r.feeder, turningpoint(r.track) - r.feeder) for r in eachrow(df)]
+    # max_direction_deviation = maximum(r.direction_deviation for r in eachrow(df) if r.group ∉ ("far", "zero"))
+    # mean_direction_deviation = mean(r.direction_deviation for r in eachrow(df) if r.group ∉ ("far", "zero"))
+    # filter!(r -> r.group ≠ "far" || r.direction_deviation < 4mean_direction_deviation, df)
 
     df[!, :turning_point] .= zero.(df.feeder)
     df[!, :center_of_search] .= zero.(df.feeder)
