@@ -15,6 +15,7 @@ CairoMakie.activate!()
 include("preparedata.jl")
 include("stats.jl")
 include("plot.jl")
+include("quality.jl")
 
 """
     main()
