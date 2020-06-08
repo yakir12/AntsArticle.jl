@@ -1,6 +1,6 @@
 module AntsArticle
 
-export main, savedata
+export main, savedata, plotquality
 
 using Serialization, DungBase
 
@@ -50,6 +50,16 @@ function savedata(path)
     end
     data = DungAnalyse.main(source)
     serialize("data", data)
+end
+
+"""
+    plotquality()
+Plot some basic quality control.
+"""
+function plotquality()
+    data = deserialize("data")
+    df = getdf(data)
+    plotquality(df)
 end
 
 end
