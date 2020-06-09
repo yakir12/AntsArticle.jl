@@ -30,6 +30,8 @@ function main()
     save_figures(df)
 end
 
+goodpath(x) = isdir(x) && !startswith(x, ['.', '_']) && !isempty(readdir(x))
+
 """
     savedata(path)
 Convert the raw data to the standard dataset and save it.
@@ -41,7 +43,6 @@ function savedata(path)
         rm(d, force = true, recursive = true)
     end
     todo = readdir(path, join = true)
-    goodpath(x) = isdir(x) && !startswith(x, '.') && !isempty(readdir(x))
     filter!(goodpath, todo)
     sources = Format2DB.main.(todo)
     source = DungAnalyse.joinsources(sources)
