@@ -11,7 +11,9 @@ function plotquality(df)
         scatter!(ax, [turningpoint(r.track)]; legendmarkers["turning point"]..., color = RGBA(c, 0.75))
         scatter!(ax, [searchcenter(r.track)]; legendmarkers["center of search"]..., color = RGBA(c, 0.75))
         scatter!(ax, [r.feeder]; legendmarkers["feeder"]..., color = RGBA(c, 0.75))
-        scatter!(ax, [r.nest]; legendmarkers["burrow"]..., color = RGBA(c, 0.75))
+        if !ismissing(r.nest)
+            scatter!(ax, [r.nest]; legendmarkers["burrow"]..., color = RGBA(c, 0.75))
+        end
         scatter!(ax, [r.fictive_nest]; legendmarkers["fictive burrow"]...)#, color = RGBA(c, 0.75))
         layout[2, 1] = LLegend(scene, apply_element.(values.([polys, legendmarkers])), collect.(keys.([polys, legendmarkers])), ["Direction of displacements", " "], orientation = :horizontal, nbanks = 2, tellheight = true, height = Auto(), groupgap = 30);
         FileIO.save("$i.pdf", scene)
