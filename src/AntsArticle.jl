@@ -30,7 +30,13 @@ function main()
     save_figures(df)
 end
 
-goodpath(x) = isdir(x) && !startswith(x, ['.', '_']) && !isempty(readdir(x))
+function goodpath(pathx)
+    if isdir(pathx) && !isempty(readdir(pathx))
+        x = basename(pathx)
+        return !startswith(x, ['.', '_'])
+    end
+    return false
+end
 
 """
     savedata(path)
