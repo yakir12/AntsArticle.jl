@@ -26,7 +26,7 @@ end
 function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
-    @. df[!, :displace_direction] = switchdirections(df.displace_direction)
+    # @. df[!, :displace_direction] = switchdirections(df.displace_direction)
     @. df[!, :group] = getgroup(df.displace_location, df.transfer, df.displace_direction)
     @. df[!, :set] = getset(df.transfer, df.group)
 
@@ -47,7 +47,7 @@ function getdf(data)
         r.feeder = trans(r.feeder)
         r.fictive_nest = trans(r.fictive_nest)
         r.nest = trans(r.nest)
-        Δ = intended(r.group) - r.fictive_nest
+        Δ = intended(r.displacement) - r.fictive_nest
         r.turning_point = turningpoint(r.track) + Δ
         r.center_of_search = searchcenter(r.track) + Δ
     end
@@ -63,10 +63,10 @@ function getdf(data)
     df
 end
 
-switchdirections(_::Missing) = missing
+#=switchdirections(_::Missing) = missing
 switchdirections(d) =   d == "left" ? "right" :
                         d == "right" ? "left" :
-                        d
+                        d=#
 
 getgroup(displace_location::Missing, transfer, displace_direction) = transfer
 getgroup(displace_location, transfer, displace_direction) = displace_location == "nest" ? "zero" : displace_direction
@@ -74,17 +74,12 @@ getset(_::Missing, d) = d == "none" ? "Closed" : "Displacement"
 getset(_, __) = "Transfer"
 
 
-intended(d::AbstractString) =  d == "none" ? DungBase.Point(0,0) :
-                d == "away" ? DungBase.Point(0, -50) :
-                d == "towards" ? DungBase.Point(0, 50) :
-                d == "right" ? DungBase.Point(50, 0) :
-                d == "left" ? DungBase.Point(-50, 0) :
-                d == "zero" ? DungBase.Point(0, -130) :
-                d == "back" ? DungBase.Point(0,0) :
-                d == "far" ? DungBase.Point(0,0) :
-                d == "50m" ? DungBase.Point(0,0) :
-                d == "halfway" ? DungBase.Point(0,0) :
-                error("unknown displacement")
+intended(::Missing) = missing
+function intended(d::AbstractString)
+    m = match(r"\((.+),(.+)\)", d)
+    x, y = m.captures
+    DungBase.Point(x, y)
+end
 intended(d) = intended(string(d))
 
 _get_rotation_center(displace_location::Missing, nest, fictive_nest) = fictive_nest
