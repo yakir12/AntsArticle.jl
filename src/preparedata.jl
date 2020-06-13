@@ -26,8 +26,8 @@ end
 function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
-    @. df[!, :displace_direction] = switchdirections.(df.displace_direction)
-    @. df[!, :group] .= getgroup(df.displace_location, df.transfer, df.displace_direction)
+    @. df[!, :displace_direction] = switchdirections(df.displace_direction)
+    @. df[!, :group] = getgroup(df.displace_location, df.transfer, df.displace_direction)
     @. df[!, :set] = getset(df.transfer, df.group)
 
     categorical!(df, [:group, :set, :displace_direction, :displace_location, :nest_coverage, :transfer])
