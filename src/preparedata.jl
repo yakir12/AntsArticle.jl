@@ -83,6 +83,7 @@ intended(d::AbstractString) =  d == "none" ? DungBase.Point(0,0) :
                 d == "back" ? DungBase.Point(0,0) :
                 d == "far" ? DungBase.Point(0,0) :
                 d == "50m" ? DungBase.Point(0,0) :
+                d == "halfway" ? DungBase.Point(0,0) :
                 error("unknown displacement")
 intended(d) = intended(string(d))
 
