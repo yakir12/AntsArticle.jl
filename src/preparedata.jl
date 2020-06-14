@@ -78,7 +78,7 @@ getset(_, __) = "Transfer"
 intended(::Missing) = missing
 function intended(d::AbstractString)
     m = match(r"\((.+),(.+)\)", d)
-    x, y = m.captures
+    x, y = parse.(Int, m.captures)
     DungBase.Point(x, y)
 end
 intended(d) = intended(string(d))
