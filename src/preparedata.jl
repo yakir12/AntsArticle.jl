@@ -10,7 +10,7 @@ function parsetitle(title, r)
     d[:track] = run.track
     d[:title] = title
     d[:comment] = r.metadata.comment
-    d[:displacement] = r.metadata.setup[:displacement]
+    d[:displacement] = get(r.metadata.setup, :displacement, missing)
     for kv in split(title, ' ')
         k, v = split(kv, '#')
         if k ∉ ("person", "pellet")
