@@ -1,37 +1,24 @@
 ############# data preparation ###################
 
+function intended(d::AbstractString)
+    m = match(r"\((.+),(.+)\)", d)
+    x, y = parse.(Int, m.captures)
+    DungBase.Point(x, y)
+end
+
 function parsetitle(title, r)
     run = r.data
-    d = Dict{Symbol, Any}(k => missing for k in (:displace_location, :displace_direction , :nest_coverage, :transfer))
-    d[:nest_coverage] = "open"
-    d[:nest] = run.originalnest
-    d[:feeder] = run.feeder
-    d[:fictive_nest] = run.nest
-    d[:track] = run.track
-    d[:title] = title
-    d[:comment] = r.metadata.comment
-    d[:displacement] = get(r.metadata.setup, :displacement, missing)
-    for kv in split(title, ' ')
-        k, v = split(kv, '#')
-        if k ∉ ("person", "pellet")
-            if k == "nest"
-                d[:nest_coverage] = v
-            else
-                d[Symbol(k)] = v
-            end
-        end
-    end
-    return (; pairs(d)...)
+    return (nest = run.originalnest, feeder = run.feeder, fictive_nest = run.nest, track = run.track, title = title, comment = r.metadata.comment, nest2feeder = get(r.metadata.setup, :nest2feeder, missing), experience = get(r.metadata.setup, :experience, missing), pickup = get(r.metadata.setup, :pickup, missing), dropoff = get(r.metadata.setup, :dropoff, missing), displacement = intended(get(r.metadata.setup), :displacement, missing))
 end
 
 function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
     # @. df[!, :displace_direction] = switchdirections(df.displace_direction)
-    @. df[!, :group] = getgroup(df.displace_location, df.transfer, df.displace_direction)
-    @. df[!, :set] = getset(df.transfer, df.group)
+    @. df[!, :group] = getgroup(df.pickup, df.displacement, df.dropoff)
+    # @. df[!, :set] = getset(df.transfer, df.group)
 
-    categorical!(df, [:group, :set, :displace_direction, :displace_location, :nest_coverage, :transfer])
+    categorical!(df, [:experience, :pickup, :dropoff])
     # levels!(df.group, ["none", "left", "right", "away", "towards", "zero", "back", "far"])
 
     # df[!, :direction_deviation]  = [angle(r.fictive_nest - r.feeder, turningpoint(r.track) - r.feeder) for r in eachrow(df)]
@@ -48,7 +35,7 @@ function getdf(data)
         r.feeder = trans(r.feeder)
         r.fictive_nest = trans(r.fictive_nest)
         r.nest = trans(r.nest)
-        Δ = intended(r.displacement) - r.fictive_nest
+        Δ = r.displacement - r.fictive_nest
         r.turning_point = turningpoint(r.track) + Δ
         r.center_of_search = searchcenter(r.track) + Δ
     end
@@ -64,24 +51,32 @@ function getdf(data)
     df
 end
 
+__x(x) = x == 0 ? "" :
+         x < 0 ? "left" :
+         "right"
+__y(y) = y == 0 ? "" :
+         y < 0 ? "away" :
+         "towards"
+function _f(x, y) 
+    x = __x(x)
+    y = __y(y)
+    join(filter(!isempty, [x, y]), " ")
+end
+getgroup(pickup, displacement, dropoff) = string(pickup, " ", _f(displacement...), " ", dropoff)
+
 #=switchdirections(_::Missing) = missing
 switchdirections(d) =   d == "left" ? "right" :
                         d == "right" ? "left" :
                         d=#
 
-getgroup(displace_location::Missing, transfer, displace_direction) = transfer
-getgroup(displace_location, transfer, displace_direction) = displace_location == "nest" ? "zero" : displace_direction
-getset(_::Missing, d) = d == "none" ? "Closed" : "Displacement"
-getset(_, __) = "Transfer"
+# getgroup(displace_location::Missing, transfer, displace_direction) = transfer
+# getgroup(displace_location, transfer, displace_direction) = displace_location == "nest" ? "zero" : displace_direction
+# getset(_::Missing, d) = d == "none" ? "Closed" : "Displacement"
+# getset(_, __) = "Transfer"
 
 
-intended(::Missing) = missing
-function intended(d::AbstractString)
-    m = match(r"\((.+),(.+)\)", d)
-    x, y = parse.(Int, m.captures)
-    DungBase.Point(x, y)
-end
-intended(d) = intended(string(d))
+# intended(::Missing) = missing
+# intended(d) = intended(string(d))
 
 _get_rotation_center(displace_location::Missing, nest, fictive_nest) = fictive_nest
 _get_rotation_center(displace_location, nest, fictive_nest) = displace_location == "feeder" ? fictive_nest : nest
