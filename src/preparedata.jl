@@ -88,12 +88,12 @@ switchdirections(d) =   d == "left" ? "right" :
 # intended(::Missing) = missing
 # intended(d) = intended(string(d))
 
-_get_rotation_center(displace_location::Missing, nest, fictive_nest) = fictive_nest
-_get_rotation_center(displace_location, nest, fictive_nest) = displace_location == "feeder" ? fictive_nest : nest
+_get_rotation_center(nest::Missing, fictive_nest) = fictive_nest
+_get_rotation_center(nest, fictive_nest) = nest
 _get_zeroing(nest::Missing, fictive_nest) = fictive_nest
 _get_zeroing(nest, fictive_nest) = nest
-function createtrans(nest, displace_location, fictive_nest, feeder)
-    v = feeder - _get_rotation_center(displace_location, nest, fictive_nest)
+function createtrans(nest, fictive_nest, feeder)
+    v = feeder - _get_rotation_center(nest, fictive_nest)
     α = atan(v[2], v[1])
     rot = LinearMap(Angle2d(-π/2 - α))
     trans = Translation(-_get_zeroing(nest, fictive_nest))
