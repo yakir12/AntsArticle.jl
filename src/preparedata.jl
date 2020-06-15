@@ -8,7 +8,17 @@ end
 
 function parsetitle(title, r)
     run = r.data
-    return (nest = run.originalnest, feeder = run.feeder, fictive_nest = run.nest, track = run.track, title = title, comment = r.metadata.comment, nest2feeder = get(r.metadata.setup, :nest2feeder, missing), experience = get(r.metadata.setup, :experience, missing), pickup = get(r.metadata.setup, :pickup, missing), dropoff = get(r.metadata.setup, :dropoff, missing), displacement = intended(get(r.metadata.setup), :displacement, missing))
+    return (nest = run.originalnest, 
+            feeder = run.feeder, 
+            fictive_nest = run.nest, 
+            track = run.track, 
+            title = title,
+            comment = r.metadata.comment,
+            nest2feeder = get(r.metadata.setup, :nest2feeder, missing),
+            experience = get(r.metadata.setup, :experience, missing),
+            pickup = get(r.metadata.setup, :pickup, missing),
+            dropoff = get(r.metadata.setup, :dropoff, missing),
+            displacement = intended(get(r.metadata.setup, :displacement, missing)))
 end
 
 function getdf(data)
