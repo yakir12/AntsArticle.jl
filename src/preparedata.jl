@@ -8,9 +8,9 @@ end
 
 function parsetitle(title, r)
     run = r.data
-    return (nest = run.originalnest, 
+    return (nest = run.nest, 
             feeder = run.feeder, 
-            fictive_nest = run.nest, 
+            fictive_nest = run.fictive_nest, 
             track = run.track, 
             title = title,
             comment = r.metadata.comment,
