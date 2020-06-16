@@ -12,12 +12,14 @@ function parsetitle(title, r)
             feeder = run.feeder, 
             fictive_nest = run.fictive_nest, 
             track = run.track, 
+            dropoff = run.dropoff,
+            pickup = run.pickup,
             title = title,
             comment = r.metadata.comment,
             nest2feeder = get(r.metadata.setup, :nest2feeder, missing),
             experience = get(r.metadata.setup, :experience, missing),
-            pickup = get(r.metadata.setup, :pickup, missing),
-            dropoff = get(r.metadata.setup, :dropoff, missing),
+            pickup_loc = get(r.metadata.setup, :pickup, missing),
+            dropoff_loc = get(r.metadata.setup, :dropoff, missing),
             displacement = intended(get(r.metadata.setup, :displacement, missing)))
 end
 
@@ -25,10 +27,10 @@ function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
     # @. df[!, :displace_direction] = switchdirections(df.displace_direction)
-    @. df[!, :group] = getgroup(df.pickup, df.displacement, df.dropoff)
+    @. df[!, :group] = getgroup(df.pickup_loc, df.displacement, df.dropoff_loc)
     # @. df[!, :set] = getset(df.transfer, df.group)
 
-    categorical!(df, [:experience, :pickup, :dropoff])
+    categorical!(df, [:experience, :pickup_loc, :dropoff_loc])
     # levels!(df.group, ["none", "left", "right", "away", "towards", "zero", "back", "far"])
 
     # df[!, :direction_deviation]  = [angle(r.fictive_nest - r.feeder, turningpoint(r.track) - r.feeder) for r in eachrow(df)]
@@ -38,17 +40,19 @@ function getdf(data)
 
     df[!, :turning_point] .= zero.(df.feeder)
     df[!, :center_of_search] .= zero.(df.feeder)
-    for r in eachrow(df)
+    #=for r in eachrow(df)
         trans = createtrans(r.nest, r.fictive_nest, r.feeder)
         @. r.track.coords = trans(r.track.coords)
         @. r.track.rawcoords.xy .= trans(r.track.rawcoords.xy)
         r.feeder = trans(r.feeder)
         r.fictive_nest = trans(r.fictive_nest)
         r.nest = trans(r.nest)
+        r.pickup = trans(r.pickup)
+        r.dropoff = trans(r.dropoff)
         Δ = r.displacement - r.fictive_nest
         r.turning_point = turningpoint(r.track) + Δ
         r.center_of_search = searchcenter(r.track) + Δ
-    end
+    end=#
 
     groups = levels(df.group)
     nc = length(groups)
