@@ -5,7 +5,7 @@ function plotquality(df)
     delete!(legendmarkers, "mean ± FWHM")
     delete!(legendmarkers, "center of search")
     polys = OrderedDict(string(df.group[1]) => (color = df.groupcolor[1], strokecolor = :transparent))
-    for (i, r) in enumerate(eachrow(df))
+    for r in eachrow(df)
         c = r.groupcolor
         scene, layout = layoutscene()#0, resolution = (2max_width, 900.0))
         ax = layout[1,1] = LAxis(scene, aspect = DataAspect())
@@ -23,6 +23,7 @@ function plotquality(df)
         scatter!(ax, [r.dropoff]; legendmarkers["dropoff"]..., color = RGBA(c, 0.75))
         scatter!(ax, [r.fictive_nest]; legendmarkers["fictive burrow"]...)#, color = RGBA(c, 0.75))
         layout[2, 1] = LLegend(scene, apply_element(values(legendmarkers)), collect(keys(legendmarkers)), orientation = :horizontal, nbanks = 2, tellheight = true, height = Auto(), groupgap = 30);
-        FileIO.save("$i.pdf", scene)
+        limits!(ax, (-130, 130), (-200, 20))
+        FileIO.save("$(first(splitext(r.comment))).pdf", scene)
     end
 end

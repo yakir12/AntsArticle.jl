@@ -6,6 +6,7 @@ function intended(d::AbstractString)
     DungBase.Point(x, y)
 end
 
+
 function parsetitle(title, r)
     run = r.data
     return (nest = run.nest, 
@@ -20,7 +21,7 @@ function parsetitle(title, r)
             experience = get(r.metadata.setup, :experience, missing),
             pickup_loc = get(r.metadata.setup, :pickup, missing),
             dropoff_loc = get(r.metadata.setup, :dropoff, missing),
-            displacement = intended(get(r.metadata.setup, :displacement, missing)))
+            displacement = passmissing(intended)(get(r.metadata.setup, :displacement, missing)))
 end
 
 function getdf(data)
@@ -76,7 +77,9 @@ function _f(x, y)
     y = __y(y)
     join(filter(!isempty, [x, y]), " ")
 end
-getgroup(pickup, displacement, dropoff) = string(pickup, " ", _f(displacement...), " ", dropoff)
+_f(xy) = _f(xy...)
+_f(::Missing) = ""
+getgroup(pickup, displacement, dropoff) = string(pickup, " ", _f(displacement), " ", dropoff)
 
 #=switchdirections(_::Missing) = missing
 switchdirections(d) =   d == "left" ? "right" :
