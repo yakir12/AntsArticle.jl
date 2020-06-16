@@ -40,7 +40,7 @@ function getdf(data)
 
     df[!, :turning_point] .= zero.(df.feeder)
     df[!, :center_of_search] .= zero.(df.feeder)
-    #=for r in eachrow(df)
+    for r in eachrow(df)
         trans = createtrans(r.nest, r.fictive_nest, r.feeder)
         @. r.track.coords = trans(r.track.coords)
         @. r.track.rawcoords.xy .= trans(r.track.rawcoords.xy)
@@ -52,7 +52,7 @@ function getdf(data)
         Δ = r.displacement - r.fictive_nest
         r.turning_point = turningpoint(r.track) + Δ
         r.center_of_search = searchcenter(r.track) + Δ
-    end=#
+    end
 
     groups = levels(df.group)
     nc = length(groups)
