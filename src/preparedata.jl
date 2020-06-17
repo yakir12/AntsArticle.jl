@@ -42,7 +42,7 @@ function getdf(data)
     df[!, :turning_point] .= zero.(df.feeder)
     df[!, :center_of_search] .= zero.(df.feeder)
     for r in eachrow(df)
-        trans = createtrans(r.nest, r.fictive_nest, r.feeder)
+        trans = createtrans(r.nest, r.dropoff, r.fictive_nest)
         @. r.track.coords = trans(r.track.coords)
         @. r.track.rawcoords.xy .= trans(r.track.rawcoords.xy)
         r.feeder = trans(r.feeder)
@@ -51,8 +51,8 @@ function getdf(data)
         r.pickup = trans(r.pickup)
         r.dropoff = trans(r.dropoff)
         Δ = r.displacement - r.fictive_nest
-        r.turning_point = turningpoint(r.track) + Δ
-        r.center_of_search = searchcenter(r.track) + Δ
+        # r.turning_point = turningpoint(r.track) + Δ
+        # r.center_of_search = searchcenter(r.track) + Δ
     end
 
     groups = levels(df.group)
@@ -97,13 +97,11 @@ switchdirections(d) =   d == "left" ? "right" :
 
 _get_rotation_center(nest::Missing, fictive_nest) = fictive_nest
 _get_rotation_center(nest, fictive_nest) = nest
-_get_zeroing(nest::Missing, fictive_nest) = fictive_nest
-_get_zeroing(nest, fictive_nest) = nest
-function createtrans(nest, fictive_nest, feeder)
-    v = feeder - _get_rotation_center(nest, fictive_nest)
+function createtrans(nest, dropoff, fictive_nest)
+    v = dropoff - _get_rotation_center(nest, fictive_nest)
     α = atan(v[2], v[1])
     rot = LinearMap(Angle2d(-π/2 - α))
-    trans = Translation(-_get_zeroing(nest, fictive_nest))
+    trans = Translation(-_get_rotation_center(nest, fictive_nest))
     passmissing(rot ∘ trans)
 end
 

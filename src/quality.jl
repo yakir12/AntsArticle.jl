@@ -13,7 +13,9 @@ function plotquality(df)
         lines!(ax, searching(r.track); legendmarkers["track"]..., color = c)
         scatter!(ax, [turningpoint(r.track)]; legendmarkers["turning point"]..., color = RGBA(c, 0.75))
         # scatter!(ax, [searchcenter(r.track)]; legendmarkers["center of search"]..., color = RGBA(c, 0.75))
-        scatter!(ax, [r.feeder]; legendmarkers["feeder"]..., color = RGBA(c, 0.75))
+        if !ismissing(r.feeder)
+            scatter!(ax, [r.feeder]; legendmarkers["feeder"]..., color = RGBA(c, 0.75))
+        end
         if !ismissing(r.nest)
             scatter!(ax, [r.nest]; legendmarkers["burrow"]..., color = RGBA(c, 0.75))
         end
