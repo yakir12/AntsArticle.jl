@@ -51,6 +51,8 @@ function getdf(data)
         r.pickup = trans(r.pickup)
         r.dropoff = trans(r.dropoff)
         Δ = r.displacement - r.fictive_nest
+        @show Δ, turningpoint(r.track)
+        @show Δ + turningpoint(r.track)
         r.turning_point = turningpoint(r.track) + Δ
         r.center_of_search = searchcenter(r.track) + Δ
     end
