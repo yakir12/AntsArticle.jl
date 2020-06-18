@@ -95,13 +95,13 @@ switchdirections(d) =   d == "left" ? "right" :
 # intended(::Missing) = missing
 # intended(d) = intended(string(d))
 
-_get_rotation_center(nest::Missing, fictive_nest) = fictive_nest
-_get_rotation_center(nest, fictive_nest) = nest
+_get_center(nest::Missing, fictive_nest) = fictive_nest
+_get_center(nest, fictive_nest) = nest
 function createtrans(nest, dropoff, fictive_nest)
-    v = dropoff - _get_rotation_center(nest, fictive_nest)
+    v = dropoff - fictive_nest
     α = atan(v[2], v[1])
     rot = LinearMap(Angle2d(-π/2 - α))
-    trans = Translation(-_get_rotation_center(nest, fictive_nest))
+    trans = Translation(-_get_center(nest, fictive_nest))
     passmissing(rot ∘ trans)
 end
 
