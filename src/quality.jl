@@ -25,7 +25,7 @@ function plotquality(df)
         scatter!(ax, [r.dropoff]; legendmarkers["dropoff"]..., color = RGBA(c, 0.75))
         scatter!(ax, [r.fictive_nest]; legendmarkers["fictive burrow"]...)#, color = RGBA(c, 0.75))
         layout[2, 1] = LLegend(scene, apply_element(values(legendmarkers)), collect(keys(legendmarkers)), orientation = :horizontal, nbanks = 2, tellheight = true, height = Auto(), groupgap = 30);
-        limits!(ax, (-130, 130), (-200, 20))
+        # limits!(ax, (-130, 130), (-200, 20))
         FileIO.save("$(first(splitext(r.comment))).pdf", scene)
     end
 end
