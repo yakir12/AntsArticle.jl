@@ -31,6 +31,8 @@ function plotquality(df)
         # ax.yticks[] = m:1:M
         layout[2, 1] = LLegend(scene, apply_element(values(legendmarkers)), collect(keys(legendmarkers)), orientation = :horizontal, nbanks = 2, tellheight = true, height = Auto(), groupgap = 30);
         # limits!(ax, (-130, 130), (-200, 20))
-        FileIO.save("$(first(splitext(r.comment))).pdf", scene)
+        path = joinpath("quality", r.title)
+        mkpath(path)
+        FileIO.save(joinpath(path, "$(first(splitext(r.comment))).pdf"), scene)
     end
 end
