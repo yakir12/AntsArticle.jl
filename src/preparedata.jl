@@ -1,5 +1,6 @@
 ############# data preparation ###################
 
+intended(::Missing) = DungBase.Point(0, 0)
 function intended(d::AbstractString)
     m = match(r"\((.+),(.+)\)", d)
     x, y = parse.(Int, m.captures)
@@ -17,18 +18,19 @@ function parsetitle(title, r)
             pickup = run.pickup,
             title = title,
             comment = r.metadata.comment,
-            nest2feeder = get(r.metadata.setup, :nest2feeder, missing),
+            nest2feeder = Int(DungAnalyse.ustrip(DungAnalyse._getvalueunit(r.metadata.setup[:nest2feeder], DungAnalyse.u"cm"))),
             experience = get(r.metadata.setup, :experience, missing),
             pickup_loc = get(r.metadata.setup, :pickup, missing),
             dropoff_loc = get(r.metadata.setup, :dropoff, missing),
-            displacement = passmissing(intended)(get(r.metadata.setup, :displacement, missing)))
+            displacement = intended(get(r.metadata.setup, :displacement, missing)))
 end
 
 function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
     # @. df[!, :displace_direction] = switchdirections(df.displace_direction)
-    @. df[!, :group] = getgroup(df.pickup_loc, df.displacement, df.dropoff_loc)
+    @. df[!, :displace_direction] = _f(df.displacement)
+    @. df[!, :group] = _f(df.displacement)
     # @. df[!, :set] = getset(df.transfer, df.group)
 
     categorical!(df, [:experience, :pickup_loc, :dropoff_loc])
@@ -50,9 +52,9 @@ function getdf(data)
         r.nest = trans(r.nest)
         r.pickup = trans(r.pickup)
         r.dropoff = trans(r.dropoff)
-        Δ = r.displacement - r.fictive_nest
-        # r.turning_point = turningpoint(r.track) + Δ
-        # r.center_of_search = searchcenter(r.track) + Δ
+        Δ = r.displacement - r.dropoff
+        r.turning_point = turningpoint(r.track) + Δ
+        r.center_of_search = searchcenter(r.track) + Δ
     end
 
     groups = levels(df.group)
@@ -78,8 +80,7 @@ function _f(x, y)
     join(filter(!isempty, [x, y]), " ")
 end
 _f(xy) = _f(xy...)
-_f(::Missing) = ""
-getgroup(pickup, displacement, dropoff) = string(pickup, " ", _f(displacement), " ", dropoff)
+# getgroup(nest2feeder, experience, pickup, dropoff, displacement) = rstrip(string(nest2feeder, " ", experience, " ", pickup, " ", dropoff, " ", _f(displacement)))
 
 #=switchdirections(_::Missing) = missing
 switchdirections(d) =   d == "left" ? "right" :

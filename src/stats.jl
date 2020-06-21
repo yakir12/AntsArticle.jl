@@ -1,16 +1,17 @@
 meanstd(x) = (μ = mean(x); Ref(μ .± std(x, mean = μ)))
 
 function descriptive_stats(df)
+    groups = (:nest2feeder, :experience, :pickup_loc, :dropoff_loc, :displace_direction)
     d = stack(df, [:turning_point, :center_of_search], variable_name = :point_type, value_name = :point_xy)
-    gd = groupby(d, [:point_type, :group, :nest_coverage])
+    gd = groupby(d, [:point_type, groups...])
     g = copy(combine(gd, :point_xy => meanstd => :point_xy, nrow))
-    g.id = repeat(1:nrow(g)÷2, outer = 2)
-    d = unstack(g, [:group, :nest_coverage, :nrow], :point_type, :point_xy)
-    sort!(d, [:nest_coverage, :group])
-    select!(d, [1,2,4,5,3])
+    # g.id = repeat(1:nrow(g)÷2, outer = 2)
+    d = unstack(g, [groups..., :nrow], :point_type, :point_xy)
+    # sort!(d, :group)
+    # select!(d, [1,2,4,5,3])
     open("table1.txt", "w") do io
-        pretty_table(io, d, ["Group" "Burrow coverage" "Turning point" "Gravity center" "n";
-                               "" "" "μ ± σ" "μ ± σ" ""], 
+        pretty_table(io, d, ["Group" "Turning point" "Gravity center" "n";
+                               "" "μ ± σ" "μ ± σ" ""], 
                      hlines = [1,7],
                      alignment = [:l, :l, :c, :c, :r],
                      formatters = (v,i,j) -> 3 ≤ j ≤ 4  ? myformat(v) : v
