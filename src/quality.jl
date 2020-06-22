@@ -9,7 +9,7 @@ function plotquality(df)
         c = r.groupcolor
         scene, layout = layoutscene()#0, resolution = (2max_width, 900.0))
         ax = layout[1,1] = LAxis(scene, aspect = DataAspect())
-        lines!(ax, r.track.rawcoords.xy, color = RGBA(1,0,0,0.5))#; legendmarkers["track"]..., color = :red)
+        scatter!(ax, r.track.rawcoords.xy, color = RGBA(1,0,0,0.5), markersize = 5px)#; legendmarkers["track"]..., color = :red)
         lines!(ax, homing(r.track); legendmarkers["track"]..., color = :blue)
         lines!(ax, searching(r.track); legendmarkers["track"]..., color = c)
         scatter!(ax, [turningpoint(r.track)]; legendmarkers["turning point"]..., color = RGBA(c, 0.75))
