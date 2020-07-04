@@ -97,6 +97,7 @@ function _f(displacement, dropoff_loc)
 end
 
 function savetable(df)
+    df[!, Not(:track)] |> CSV.write("results.csv")
 end
 
 # getgroup(nest2feeder, experience, pickup, dropoff, displacement) = rstrip(string(nest2feeder, " ", experience, " ", pickup, " ", dropoff, " ", _f(displacement)))

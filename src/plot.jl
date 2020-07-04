@@ -92,8 +92,6 @@ set_theme!(
     LAxis = (xticklabelsize = 8, yticklabelsize = 8, xlabel = "X (cm)", ylabel = "Y (cm)", autolimitaspect = 1, xtickalign = 1, xticksize = 3, ytickalign = 1, yticksize = 3, xticklabelpad = 4)
 )
     
-    data = deserialize("/home/yakir/tmp/data")
-    df = getdf(data)
     d = filter(r -> r.pickup_loc == "feeder" && r.dropoff_loc ≠ "medium" && r.nest2feeder == 130 && r.experience == "experienced", df)
     gdf = groupby(d, :speedgroups)
 
