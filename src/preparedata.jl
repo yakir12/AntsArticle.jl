@@ -1,12 +1,21 @@
 ############# data preparation ###################
 
-intended(::Missing) = DungBase.Point(0, 0)
-function intended(d::AbstractString)
+getdisplacement(::Missing) = DungBase.Point(0, 0)
+function getdisplacement(d::AbstractString)
     m = match(r"\((.+),(.+)\)", d)
     x, y = parse.(Int, m.captures)
     DungBase.Point(x, y)
 end
 
+function get_intended_fictive_nest(displacement, nest2feeder, pickup_loc, dropoff_loc)
+    dropoff_loc == "far" && return displacement
+    a = pickup_loc == "feeder" ? 1.0 :
+        pickup_loc == "halfway" ? 0.5 :
+        pickup_loc == "nest" ? 0.0 :
+        error("unknown pickup location: $pickup_loc")
+    v = DungBase.Point(0, a*nest2feeder)
+    displacement + v
+end
 
 function parsetitle(title, r)
     run = r.data
@@ -22,18 +31,23 @@ function parsetitle(title, r)
             experience = get(r.metadata.setup, :experience, missing),
             pickup_loc = get(r.metadata.setup, :pickup, missing),
             dropoff_loc = get(r.metadata.setup, :dropoff, missing),
-            displacement = intended(get(r.metadata.setup, :displacement, missing)))
+            displacement = getdisplacement(get(r.metadata.setup, :displacement, missing))
+           )
 end
 
 function getdf(data)
     df = DataFrame(parsetitle(k, r) for (k, v) in data for r in v.runs)
 
     # @. df[!, :displace_direction] = switchdirections(df.displace_direction)
-    @. df[!, :displace_direction] = _f(df.displacement)
-    @. df[!, :group] = _f(df.displacement)
+    @. df[!, :displace_direction] = _f(df.displacement, df.dropoff_loc)
+    # @. df[!, :group] = _f(df.displacement)
     # @. df[!, :set] = getset(df.transfer, df.group)
 
-    categorical!(df, [:experience, :pickup_loc, :dropoff_loc])
+    @. df[!, :intended_fictive_nest] = get_intended_fictive_nest(df.displacement, df.nest2feeder, df.pickup_loc, df.dropoff_loc)
+
+    df[!, :group] .= join.(eachrow(df[:, All(:displace_direction, :nest2feeder, :experience, :dropoff_loc, :pickup_loc)]), " ")
+
+    categorical!(df, [:experience, :pickup_loc, :dropoff_loc, :group])
     # levels!(df.group, ["none", "left", "right", "away", "towards", "zero", "back", "far"])
 
     # df[!, :direction_deviation]  = [angle(r.fictive_nest - r.feeder, turningpoint(r.track) - r.feeder) for r in eachrow(df)]
@@ -57,29 +71,34 @@ function getdf(data)
         r.center_of_search = searchcenter(r.track) + Δ
     end
 
+    gdf = groupby(df, :group)
     groups = levels(df.group)
     nc = length(groups)
-    colors = OrderedDict(zip(groups, [colorant"black"; distinguishable_colors(nc - 1, [colorant"white", colorant"black"], dropseed = true)]))
+    colors = OrderedDict(zip(groups, distinguishable_colors(nc, [colorant"white", colorant"black"], dropseed = true)))
 
-    gdf = groupby(df, :group)
     DataFrames.transform!(gdf, :group => (g -> colors[g[1]]) => :groupcolor)
     DataFrames.transform!(gdf, :groupcolor => getcolor => :color)
+
+    df.speedgroups = speedgroup.(df.displace_direction, df.dropoff_loc)
 
     df
 end
 
-__x(x) = x == 0 ? "" :
+function _f(displacement, dropoff_loc)
+    dropoff_loc == "far" && return "transfer"
+    x, y = displacement
+    _x = x == 0 ? "" :
          x < 0 ? "left" :
          "right"
-__y(y) = y == 0 ? "" :
+    _y = y == 0 ? "" :
          y < 0 ? "away" :
          "towards"
-function _f(x, y) 
-    x = __x(x)
-    y = __y(y)
-    join(filter(!isempty, [x, y]), " ")
+    join(filter(!isempty, [_x, _y]), " ")
 end
-_f(xy) = _f(xy...)
+
+function savetable(df)
+end
+
 # getgroup(nest2feeder, experience, pickup, dropoff, displacement) = rstrip(string(nest2feeder, " ", experience, " ", pickup, " ", dropoff, " ", _f(displacement)))
 
 #=switchdirections(_::Missing) = missing
@@ -103,7 +122,8 @@ function createtrans(nest, dropoff, fictive_nest)
     α = atan(v[2], v[1])
     rot = LinearMap(Angle2d(-π/2 - α))
     trans = Translation(-_get_center(nest, fictive_nest))
-    passmissing(rot ∘ trans)
+    mirrorx = LinearMap(Diagonal([-1,1]))
+    passmissing(mirrorx ∘ rot ∘ trans)
 end
 
 
@@ -115,5 +135,16 @@ function getcolor(g)
     n = length(g)
     [highlight(c, i, n) for (i, c) in enumerate(g)]
 end
+
+
+function speedgroup(displace_direction, dropoff_loc)
+    if displace_direction == "transfer" && dropoff_loc == "far"
+        "transfered"
+    else
+        "displaced"
+    end
+end
+
+
 
 

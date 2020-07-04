@@ -1,6 +1,6 @@
 module AntsArticle
 
-export main, savedata, plotquality
+export main, savedata, plotquality, plotall
 
 using Serialization, DungBase
 
@@ -68,6 +68,17 @@ function plotquality()
     data = deserialize("data")
     df = getdf(data)
     plotquality(df)
+end
+
+"""
+plotall()
+Plot all the final figures.
+"""
+function plotall()
+    data = deserialize("data")
+    df = getdf(data)
+    plotspeed(df)
+    plotfigures(df)
 end
 
 end
