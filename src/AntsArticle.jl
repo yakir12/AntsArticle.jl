@@ -6,7 +6,7 @@ using Serialization, DungBase
 
 using Format2DB, Glob, DungAnalyse
 
-using DataStructures, CoordinateTransformations, Rotations, DataFrames, Missings, Distributions, AngleBetweenVectors, LinearAlgebra, StatsBase, OnlineStats, Colors, PrettyTables, Measurements, HypothesisTests, GLM, DelimitedFiles, Printf
+using DataStructures, CoordinateTransformations, Rotations, DataFrames, Missings, Distributions, AngleBetweenVectors, LinearAlgebra, StatsBase, OnlineStats, Colors, PrettyTables, Measurements, HypothesisTests, GLM, DelimitedFiles, Printf, CSV
 
 using CairoMakie, MakieLayout, FileIO, AbstractPlotting
 import AbstractPlotting:px
@@ -77,6 +77,7 @@ Plot all the final figures.
 function plotall()
     data = deserialize("data")
     df = getdf(data)
+    savetable(df)
     plotspeed(df)
     plotfigures(df)
 end
