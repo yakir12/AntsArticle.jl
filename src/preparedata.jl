@@ -96,10 +96,6 @@ function _f(displacement, dropoff_loc)
     join(filter(!isempty, [_x, _y]), " ")
 end
 
-function savetable(df)
-    df[!, Not(:track)] |> CSV.write("results.csv")
-end
-
 # getgroup(nest2feeder, experience, pickup, dropoff, displacement) = rstrip(string(nest2feeder, " ", experience, " ", pickup, " ", dropoff, " ", _f(displacement)))
 
 #=switchdirections(_::Missing) = missing
