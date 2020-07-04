@@ -45,6 +45,9 @@ function getdf(data)
 
     @. df[!, :intended_fictive_nest] = get_intended_fictive_nest(df.displacement, df.nest2feeder, df.pickup_loc, df.dropoff_loc)
 
+    @. df[!, :real_turning_point] = turningpoint(df.track)
+    @. df[!, :dropoff2tp] = norm(df.dropoff - df.real_turning_point)
+
     df[!, :group] .= join.(eachrow(df[:, All(:displace_direction, :nest2feeder, :experience, :dropoff_loc, :pickup_loc)]), " ")
 
     categorical!(df, [:experience, :pickup_loc, :dropoff_loc, :group])
