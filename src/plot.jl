@@ -39,7 +39,14 @@ apply_element(x::NamedTuple) =  :marker ∈ keys(x) ? MarkerElement(; x...) :
 label!(scene, ax, letter) = LText(scene, letter, fontsize = 12, padding = (10, 0, 0, 10), halign = :left, valign = :top, bbox = lift(FRect2D, ax.scene.px_area), font ="Noto Sans Bold")
 plottracks!(ax, g::GroupedDataFrame) = plottracks!.(Ref(ax), g)
 plottracks!(ax, g::Union{SubDataFrame, DataFrame}) = plottracks!.(Ref(ax), eachrow(g))
-plottracks!(ax, r::DataFrameRow) = lines!(ax, r.track.coords; legendmarkers["track"]..., color = r.color)
+function plottracks!(ax, r::DataFrameRow) 
+    lines!(ax, r.track.coords; legendmarkers["track"]..., color = r.color)
+    scatter!(ax, r.fictive_nest; legendmarkers["fictive burrow"]..., strokecolor = r.color)
+    if !ismissing(r.nest)
+        scatter!(ax, [zero(Point2f0)]; legendmarkers["burrow"]...)
+    end
+end
+
 function plotpoints!(ax, g, point_type)
     if !ismissing(g[1].nest[1])
         scatter!(ax, [zero(Point2f0)]; legendmarkers["burrow"]...)
