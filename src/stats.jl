@@ -39,11 +39,11 @@ end
 function speeds!(df)
     df.homing_speed = [foo(track.rawcoords[1:track.tp]) for track in df.track]
     df.search_speed = [foo(track.rawcoords[track.tp:end]) for track in df.track]
-    v = combine(groupby(df, :group), :homing_speed => mean ∘ skipmissing, :search_speed => mean ∘ skipmissing)
-    println("speeds:")
-    println(v)
-    μ = mean(skipmissing(vcat(df.homing_speed, df.search_speed)))
-    @printf "mean speed is %s cm/s\n" μ
+    # v = combine(groupby(df, :group), :homing_speed => mean ∘ skipmissing, :search_speed => mean ∘ skipmissing)
+    # println("speeds:")
+    # println(v)
+    # μ = mean(skipmissing(vcat(df.homing_speed, df.search_speed)))
+    # @printf "mean speed is %s cm/s\n" μ
 end
 
 
