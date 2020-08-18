@@ -84,8 +84,17 @@ function getdf(data)
 
     df.speedgroups = speedgroup.(df.displace_direction, df.dropoff_loc)
 
+    df.closecoordinates = closecoordinates.(df.track)
+
     df
 end
+
+closecoordinates(track) = map((10, 20))  do l
+    i = findfirst(xy -> norm(xy - track.coords[1]) > l, track.coords)
+    track.coords[i]
+end
+
+
 
 function _f(displacement, dropoff_loc)
     dropoff_loc == "far" && return "transfer"
