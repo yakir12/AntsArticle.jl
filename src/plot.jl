@@ -102,6 +102,7 @@ set_theme!(
     d = filter(r -> r.pickup_loc == "feeder" && r.dropoff_loc ≠ "medium" && r.nest2feeder == 130 && r.experience == "experienced", df)
     gdf = groupby(d, :speedgroups)
 
+
     #=scene, layout = layoutscene()
     ax = layout[1,1] = LAxis(scene, aspect = DataAspect())
     r = gd[3,:]
@@ -126,7 +127,7 @@ set_theme!(
                  ylabel = "Speed (cm/s)",
                  xticks = mbins,
                  xreversed = true
-                ) for _ in 1:2]
+                ) for _ in 1:length(gdf)]
     for (i, _g) in enumerate(gdf)
         # _g = first(gdf)
         g = DataFrame(_g, copycols = false)
@@ -148,17 +149,27 @@ set_theme!(
         end
         axs[i].title = g.speedgroups[1]
     end
-    layout[1, 1:2] = axs
-    layout[2, 1:2] = LText(scene, "Distance to burrow (cm)")
+    layout[1, 1:length(axs)] = axs
+    layout[2, :] = LText(scene, "Distance to burrow (cm)")
     linkyaxes!(axs...)
-    ylims!(axs[1], 0, 35)
+    ylims!.(axs, 0, 35)
     xlims!.(axs, Iterators.reverse(extrema(mbins))...)
-    hideydecorations!(axs[2], grid = false)
+    hideydecorations!.(axs[2:end], grid = false)
     hidexdecorations!.(axs, grid = false, ticklabels = false, ticks = false)
     FileIO.save("speed.pdf", scene)
 
 end
 
+function savespeed(_df)
+    g = copy(_df)
+    m, M = (0, 120)
+    nbins = 6
+    bins = range(m, stop = M, length = nbins + 1)
+    mbins = StatsBase.midpoints(bins)
+    h = StatsBase.Histogram(bins)
+    DataFrames.transform!(g, :track => ByRow(x -> passmissing(mean).(binit(x, h, nbins, m, M))) => :yv)
+    g[!, All(:title, :comment, :yv)] |> CSV.write("speeds.csv")
+end
 
 function getname(k) 
     if length(k) > 1

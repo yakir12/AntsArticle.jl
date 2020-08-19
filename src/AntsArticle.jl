@@ -79,6 +79,7 @@ function plotall()
     df = getdf(data)
     speeds!(df)
     df[!, Not(All(:track, :groupcolor, :color, :speedgroups))] |> CSV.write("results.csv")
+    savespeed(df)
     plotspeed(df)
     plotfigures(df)
 end

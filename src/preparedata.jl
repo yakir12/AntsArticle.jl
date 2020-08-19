@@ -150,7 +150,7 @@ function speedgroup(displace_direction, dropoff_loc)
     if displace_direction == "transfer" && dropoff_loc == "far"
         "transfered"
     else
-        "displaced"
+        displace_direction
     end
 end
 
