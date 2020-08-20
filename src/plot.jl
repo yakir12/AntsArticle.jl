@@ -83,6 +83,84 @@ function binit(track, h, nbins, m, M)
     replace!(x -> nobs(x) < 2 ? missing : x, o)
 end
 
+function heatmap(df)
+    d = filter(r -> r.dropoff_loc ≠ "medium" && r.nest2feeder == 130 && r.experience == "experienced", df)
+    gdf = groupby(df, [:displace_direction, :pickup_loc])
+    ks = keys(gdf)
+    # edges = (-100:20:100, -100:20:100)
+    scene, layout = layoutscene(10, resolution = (3max_width, 200.0))
+    axs = [LAxis(scene, 
+                 aspect = DataAspect(), 
+                 # autolimitaspect = nothing,
+                 # xlabel = "X (cm)",
+                 # ylabel = "Y (cm)",
+                ) for _ in 1:length(gdf)]
+    for (i, g) in enumerate(gdf)
+        x = Float64[]
+        y = Float64[]
+        v = Float64[]
+        for i in g.track
+            xy = i.coords
+            append!(v, norm.(diff(xy))/step(i.t))
+            append!(x, first.(xy[2:end]))
+            append!(y, last.(xy[2:end]))
+        end
+        uw = fit(StatsBase.Histogram, (x, y))#, edges)
+        w = fit(StatsBase.Histogram, (x, y), weights(v))#, edges)
+        h = w.weights./uw.weights
+        heatmap!(axs[i], w.edges..., h)
+        axs[i].title = join(values(ks[i]), "-")
+    end
+    tightlimits!.(axs)
+    layout[1, 1:length(axs)] = axs
+    layout[2, :] = LText(scene, "X (cm)")
+    # linkyaxes!(axs...)
+    # ylims!.(axs, 0, 35)
+    # xlims!.(axs, Iterators.reverse(extrema(mbins))...)
+    hideydecorations!.(axs[2:end], grid = false, ticklabels = false, ticks = false)
+    hidexdecorations!.(axs[2:end], grid = false, ticklabels = false, ticks = false)
+    # hidexdecorations!.(axs, grid = false, ticklabels = false, ticks = false)
+    FileIO.save("speedhist.pdf", scene)
+end
+
+
+function speedplot2(df)
+    d = filter(r -> r.dropoff_loc ≠ "medium" && r.nest2feeder == 130 && r.experience == "experienced", df)
+    gdf = groupby(df, [:displace_direction, :pickup_loc])
+    ks = keys(gdf)
+    scene, layout = layoutscene(10, resolution = (3max_width, 200.0))
+    axs = [LAxis(scene, 
+                 aspect = nothing, 
+                 autolimitaspect = nothing,
+                 # xlabel = "X (cm)",
+                 ylabel = "Speed (cm/s)",
+                ) for _ in 1:length(gdf)]
+    for (i, g) in enumerate(gdf)
+        for t in g.track
+            xy = t.coords
+            l = norm.(diff(xy))
+            L = cumsum(l)
+            L .-= L[t.tp - 1]
+            v = l/step(t.t)
+            k = findall(>(50), v)
+            deleteat!(L, k)
+            deleteat!(v, k)
+            # @show maximum(v)
+            lines!(axs[i], L, v, linewidth = 0.1)#, color = g.groupcolor[1])
+        end
+        axs[i].title = join(values(ks[i]), "-")
+    end
+    layout[1, 1:length(axs)] = axs
+    layout[2, :] = LText(scene, "Distance to TP (cm)")
+    # xlims!.(axs, Iterators.reverse(extrema(mbins))...)
+    hideydecorations!.(axs[2:end], grid = false)
+    hidexdecorations!.(axs, grid = false, ticklabels = false, ticks = false)
+    xlims!.(axs, -50, 50)
+    ylims!.(axs, 0, 50)
+    # linkyaxes!(axs...)
+    FileIO.save("speedTP.pdf", scene)
+end
+
 
 function plotspeed(df)
 
@@ -114,8 +192,8 @@ set_theme!(
     scatter!(ax, [r.pickup], markersize = 10px, marker = '↑')
     FileIO.save("a.pdf", scene)=#
 
-    m, M = (0, 120)
-    nbins = 6
+    m, M = (0, 130)
+    nbins = 13
     bins = range(m, stop = M, length = nbins + 1)
     mbins = StatsBase.midpoints(bins)
     h = StatsBase.Histogram(bins)
@@ -125,7 +203,7 @@ set_theme!(
                  autolimitaspect = nothing,
                  # xlabel = "Distance to burrow (cm)",
                  ylabel = "Speed (cm/s)",
-                 xticks = mbins,
+                 xticks = mbins[1:2:end],
                  xreversed = true
                 ) for _ in 1:length(gdf)]
     for (i, _g) in enumerate(gdf)
@@ -162,8 +240,8 @@ end
 
 function savespeed(_df)
     g = copy(_df)
-    m, M = (0, 120)
-    nbins = 6
+    m, M = (0, 130)
+    nbins = 13
     bins = range(m, stop = M, length = nbins + 1)
     mbins = StatsBase.midpoints(bins)
     h = StatsBase.Histogram(bins)

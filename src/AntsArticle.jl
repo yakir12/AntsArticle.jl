@@ -6,7 +6,7 @@ using Serialization, DungBase
 
 using Format2DB, Glob, DungAnalyse
 
-using DataStructures, CoordinateTransformations, Rotations, DataFrames, Missings, Distributions, AngleBetweenVectors, LinearAlgebra, StatsBase, OnlineStats, Colors, PrettyTables, Measurements, HypothesisTests, GLM, DelimitedFiles, Printf, CSV
+using DataStructures, CoordinateTransformations, Rotations, DataFrames, Missings, Distributions, AngleBetweenVectors, LinearAlgebra, StatsBase, OnlineStats, Colors, PrettyTables, Measurements, HypothesisTests, GLM, DelimitedFiles, Printf, CSV, StatsBase
 
 using CairoMakie, MakieLayout, FileIO, AbstractPlotting
 import AbstractPlotting:px
@@ -81,6 +81,8 @@ function plotall()
     df[!, Not(All(:track, :groupcolor, :color, :speedgroups))] |> CSV.write("results.csv")
     savespeed(df)
     plotspeed(df)
+    heatmap(df)
+    speedplot2(df)
     plotfigures(df)
 end
 
