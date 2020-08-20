@@ -178,7 +178,9 @@ set_theme!(
 )
     
     d = filter(r -> r.pickup_loc == "feeder" && r.dropoff_loc ≠ "medium" && r.nest2feeder == 130 && r.experience == "experienced", df)
-    gdf = groupby(d, :speedgroups)
+    gdf = groupby(df, [:displace_direction, :pickup_loc])
+    ks = keys(gdf)
+    # gdf = groupby(d, :speedgroups)
 
 
     #=scene, layout = layoutscene()
@@ -197,7 +199,7 @@ set_theme!(
     bins = range(m, stop = M, length = nbins + 1)
     mbins = StatsBase.midpoints(bins)
     h = StatsBase.Histogram(bins)
-    scene, layout = layoutscene(10, resolution = (max_width, 200.0))
+    scene, layout = layoutscene(10, resolution = (3max_width, 200.0))
     axs = [LAxis(scene, 
                  aspect = nothing, 
                  autolimitaspect = nothing,
@@ -218,14 +220,19 @@ set_theme!(
         x = [x for (x,y) in zip(mbins, μ) if !ismissing(y)]
         mu = mean.(skipmissing(μ))
         σ = std.(skipmissing(μ))
-        bh = band!(axs[i], x, mu .- σ, mu .+ σ, color = RGBA(bandcolor, 0.25))
-        lh = lines!(axs[i], x, mu, color = :white, linewidth = 5)
+        if !isempty(x)
+            bh = band!(axs[i], x, mu .- σ, mu .+ σ, color = RGBA(bandcolor, 0.25))
+            lh = lines!(axs[i], x, mu, color = :white, linewidth = 5)
+        end
         for r in eachrow(g)
             xy = [Point2f0(x, mean(y)) for (x,y) in zip(mbins, r.yv) if !ismissing(y)]
-            lines!(axs[i], xy; legendmarkers["track"]..., color = r.color)
-            scatter!(axs[i], xy; legendmarkers["turning point"]..., color = r.color)
+            if !isempty(xy)
+                lines!(axs[i], xy; legendmarkers["track"]..., color = r.color)
+                scatter!(axs[i], xy; legendmarkers["turning point"]..., color = r.color)
+            end
         end
-        axs[i].title = g.speedgroups[1]
+        # axs[i].title = g.speedgroups[1]
+        axs[i].title = join(values(ks[i]), "-")
     end
     layout[1, 1:length(axs)] = axs
     layout[2, :] = LText(scene, "Distance to burrow (cm)")
